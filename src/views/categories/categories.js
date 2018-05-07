@@ -26,7 +26,7 @@ class Trade extends React.Component {
    
     fetch("http://203.100.68.130:83/getCategory",{
         method: "Post",
-        body:JSON.stringify({page:1}),
+        body:JSON.stringify({page:"0"}),
         cache: 'no-cache', 
         mode: 'cors', 
         headers:  new Headers({
