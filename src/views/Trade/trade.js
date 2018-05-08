@@ -63,6 +63,8 @@ class Trade extends React.Component {
   }
 
   handleClickOpen = (e,trade) => {
+    e.preventDefault();
+    console.log("call handle")
     
     if(trade){
         this.setState({
@@ -197,48 +199,48 @@ class Trade extends React.Component {
           }
         />
       </ItemGrid>
-      <Dialog
+        <Dialog
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id="alert-dialog-title">{"Add Trade"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                <ItemGrid xs={12} sm={12} md={12}>
-                    <TextField
-                        required
-                        id="required"
-                        name="trade"
-                        label="Trade"
-                        defaultValue={this.state.trade}
-                        onChange={(e)=>{this.handleChange(e)}}
-                        margin="normal"
-                    />
-                    
-                </ItemGrid>
-                <ItemGrid xs={12} sm={12} md={12}>
-                <TextField
-                        id="select-Status"
-                        select
-                        label="Select"
-                        name="status"
-                        value={this.state.status}
-                        onChange={(e)=>{this.handleChange(e)}}
+            <DialogTitle id="alert-dialog-title">{"Add Trade"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    <ItemGrid xs={12} sm={12} md={12}>
+                        <TextField
+                            required
+                            id="required"
+                            name="trade"
+                            label="Trade"
+                            defaultValue={this.state.trade}
+                            onChange={(e)=>{this.handleChange(e)}}
+                            margin="normal"
+                        />
                         
-                        helperText="Please select your status"
-                        margin="normal"
-                    >
-                    {currencies.map(option => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                    ))}
-                    </TextField>
-                </ItemGrid>
-            </DialogContentText>
-          </DialogContent>
+                    </ItemGrid>
+                    <ItemGrid xs={12} sm={12} md={12}>
+                    <TextField
+                            id="select-Status"
+                            select
+                            label="Select"
+                            name="status"
+                            value={this.state.status}
+                            onChange={(e)=>{this.handleChange(e)}}
+                            
+                            helperText="Please select your status"
+                            margin="normal"
+                        >
+                        {currencies.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                        ))}
+                        </TextField>
+                    </ItemGrid>
+                </DialogContentText>
+            </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
               Cancel
