@@ -1,7 +1,8 @@
 import React from "react";
 import { Grid,TextField,MenuItem } from "material-ui";
-import { AddAlert,Add } from "@material-ui/icons";
+import { AddAlert,Add,Create,Clear } from "@material-ui/icons";
 import UploadPreview from 'material-ui-upload/UploadPreview';
+import axios  from 'axios';
 
 
 import Dialog, {
@@ -55,6 +56,8 @@ class Trade extends React.Component {
         category:'',
         status:'',
         desc:"",
+        _id:"",
+        modalTitle:"Category",
         categoryImage: {}
       
     };
@@ -75,9 +78,17 @@ class Trade extends React.Component {
       6000
     );
   }
-  handleClickOpen = (e) => {
+  handleClickOpen = (e,cat) => {
     e.preventDefault();
-    console.log("call")
+    if(cat){
+        this.setState({
+            category:cat.category,
+            status:cat.status,
+            desc:cat.desc,
+            _id:cat._id,
+
+        })
+    }
     this.setState({ open: true });
   }
   getCategoryList = () =>{
@@ -98,12 +109,14 @@ class Trade extends React.Component {
             var mainArray = [];
             result && result.data.forEach((cat)=>{
                 var dataArray = [];
-                dataArray.push(cat._id)
-                dataArray.push(cat.categories)
+               
+                dataArray.push(cat.category)
                 dataArray.push(cat.desc)
-                dataArray.push(cat.fileName)
+                
                 dataArray.push(cat.path)
-                //dataArray.push(new Date(trade.createAt).toDateString());
+                dataArray.push(<div><Create onClick={(e)=>{this.handleClickOpen(e,cat)}} />
+                    <Clear onClick={(e)=>{this.removeCategory(e,cat)}} /></div>)
+               
                 mainArray.push(dataArray)
             })
             this.setState({
@@ -129,7 +142,7 @@ class Trade extends React.Component {
 onChange1 = (e) =>{
     console.log("call",e.target.files)
     this.setState({
-        categoryImage:e.target.files
+        categoryImage:e.target.files[0]
     })
 
 } 
@@ -144,7 +157,7 @@ submitCategory = (e) => {
         formData.append('category', this.state.category);
         formData.append('status', this.state.status);
         formData.append('desc', this.state.desc);
-        formData.append('categoryImage', this.state.desc);
+        formData.append('categoryImage', this.state.categoryImage);
         formData.append('_id', this.state._id);
        
     }else{
@@ -153,17 +166,44 @@ submitCategory = (e) => {
         formData.append('category', this.state.category);
         formData.append('status', this.state.status);
         formData.append('desc', this.state.desc);
-        formData.append('categoryImage', this.state.categoryImage[0]);
+        formData.append('categoryImage', this.state.categoryImage);
+
     }
     
-   
+    axios.post(url, formData,{
+        headers: {
+            'content-type': 'multipart/form-data',
+            'authorization':"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNoYUBnbWFpMjFsNS5jb20iLCJfaWQiOiI1YWJlMDU2YmE1NzE5ZjI3Y2FjNTgzMzMiLCJ1c2VyVHlwZSI6IiIsImlhdCI6MTUyMzI3Nzk4OX0.SLD1x0oN28NFZBl3_Cz5gwFFFE0RCzmt9L04axTSOsM"
+        }
+    }).then((response) => {
+          console.log(response,"alerttt"); // do something with the response
+          this.getCategoryList();
+          this.setState({
+            category:'',
+            status:'',
+            desc:'',
+            _id:'',
+            categoryImage:''
+
+            })
+          this.handleClose();
+          if(response && response.data ){
+            alert(response.data.msg)
+          }else{
+
+          }
+    });
+        
+  }
+  removeCategory = (e,cat) =>{
+    let url = "http://203.100.68.130:83/removeCategory"
     fetch(url,{
         method: "Post",
-        body:formData,
+        body:JSON.stringify({_id:cat._id}),
         cache: 'no-cache', 
         mode: 'cors', 
         headers:  new Headers({
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
         'authorization':"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNoYUBnbWFpMjFsNS5jb20iLCJfaWQiOiI1YWJlMDU2YmE1NzE5ZjI3Y2FjNTgzMzMiLCJ1c2VyVHlwZSI6IiIsImlhdCI6MTUyMzI3Nzk4OX0.SLD1x0oN28NFZBl3_Cz5gwFFFE0RCzmt9L04axTSOsM"
         })
     })
@@ -171,13 +211,13 @@ submitCategory = (e) => {
     .then(
         (result) => {
             console.log("result = ",result)
-                alert("Succesfully add")
+                alert("Succesfully delete")
                 this.setState({ open: false });
                 this.getCategoryList();
             },
             (error) => {
               console.log("error",error)
-              alert("Error in adding trade")
+              alert("Error in deleting trade")
         }
     )
   }
@@ -191,7 +231,7 @@ submitCategory = (e) => {
           content={
             <Table
               tableHeaderColor="primary"
-              tableHead={["CategoryId","Category", "Desc", "FileName", "path"]}
+              tableHead={["Category","Desc","path","Action"]}
               tableData={this.state.categoriesList}
             />
           }
@@ -203,7 +243,7 @@ submitCategory = (e) => {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">{"Add Trade"}</DialogTitle>
+            <DialogTitle id="alert-dialog-title">{this.state.modalTitle}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
                         <ItemGrid xs={12} sm={12} md={12}>
